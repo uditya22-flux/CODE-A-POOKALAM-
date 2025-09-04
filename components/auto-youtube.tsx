@@ -18,14 +18,26 @@ export default function AutoYouTube({ videoId = "dUs4mAHzw74" }: { videoId?: str
     iframeRef.current.src = `${base}&mute=${muted ? 1 : 0}`
   }, [muted, base])
 
+  useEffect(() => {
+    // Try to play unmuted after a short delay
+    const timer = setTimeout(() => {
+      if (iframeRef.current && !muted) {
+        // Reload iframe to ensure autoplay with sound
+        iframeRef.current.src = `${base}&mute=0&autoplay=1`
+      }
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [base, muted])
+
   return (
     <div className="fixed bottom-6 right-6 z-40">
       <iframe
         ref={iframeRef}
         title="Onam Music"
-        allow="autoplay"
+        allow="autoplay; encrypted-media"
         className="h-0 w-0 opacity-0"
-        src={`${base}&mute=${muted ? 1 : 0}`}
+        src={`${base}&mute=${muted ? 1 : 0}&autoplay=1`}
       />
 
       <Button
