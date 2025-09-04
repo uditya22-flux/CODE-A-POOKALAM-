@@ -6,7 +6,13 @@ import { useEffect, useRef } from "react"
  * Coded Pookalam on <canvas>, inspired by the provided reference.
  * Uses concentric wedge rings in warm hues and a simple central Kerala scene.
  */
-export default function PookalamCanvas({ size = 520 }: { size?: number }) {
+export default function PookalamCanvas({
+  size = 520,
+  onClick,
+}: {
+  size?: number
+  onClick?: () => void
+}) {
   const ref = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
@@ -132,5 +138,12 @@ export default function PookalamCanvas({ size = 520 }: { size?: number }) {
     ctx.stroke()
   }, [size])
 
-  return <canvas ref={ref} className="rounded-full shadow-md" aria-label="Pookalam design" />
+  return (
+    <canvas
+      ref={ref}
+      className="rounded-full shadow-md cursor-pointer hover:shadow-lg transition-shadow"
+      aria-label="Pookalam design"
+      onClick={onClick}
+    />
+  )
 }
