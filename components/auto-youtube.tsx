@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from "react"
 import { Button } from "@/components/ui/button"
-import { VolumeX } from "lucide-react"
+import { VolumeX, Volume2 } from "lucide-react"
 
 export interface AudioControlRef {
   play: () => void
@@ -10,9 +10,9 @@ export interface AudioControlRef {
 }
 
 /**
- * YouTube audio player with external control via ref.
+ * YouTube audio player with automatic start and external control.
  */
-const AutoYouTube = forwardRef<AudioControlRef, { videoId?: string }>(({ videoId = "dUs4mAHzw74" }, ref) => {
+const AutoYouTube = forwardRef<AudioControlRef, { videoId?: string }>(({ videoId = "VrrnflVEiMg" }, ref) => {
   const [isPlaying, setIsPlaying] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
@@ -28,6 +28,14 @@ const AutoYouTube = forwardRef<AudioControlRef, { videoId?: string }>(({ videoId
   }))
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPlaying(true)
+    }, 500) // Start after 0.5 seconds for better user experience
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
     if (!iframeRef.current) return
     if (isPlaying) {
       iframeRef.current.src = `${base}&autoplay=1&mute=0`
@@ -40,21 +48,20 @@ const AutoYouTube = forwardRef<AudioControlRef, { videoId?: string }>(({ videoId
     <div className="fixed bottom-6 right-6 z-40">
       <iframe
         ref={iframeRef}
-        title="Onam Music"
+        title="Thiruvavani Ravu - Onam Music"
         allow="autoplay; encrypted-media"
         className="h-0 w-0 opacity-0"
-        src={`${base}&autoplay=0&mute=1`}
+        src={`${base}&autoplay=1&mute=0`}
       />
 
       <Button
-        onClick={() => setIsPlaying(false)}
+        onClick={() => setIsPlaying(!isPlaying)}
         variant="outline"
         size="sm"
         className="bg-white/90 backdrop-blur hover:bg-white/100 transition-all shadow-lg flex items-center gap-2"
-        disabled={!isPlaying}
       >
-        <VolumeX className="h-4 w-4" />
-        <span className="text-sm font-medium">Freeze Song</span>
+        {isPlaying ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        <span className="text-sm font-medium">{isPlaying ? "Freeze Song" : "Play Song"}</span>
       </Button>
     </div>
   )

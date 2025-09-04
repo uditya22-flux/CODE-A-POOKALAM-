@@ -3,8 +3,7 @@
 import { useEffect, useRef } from "react"
 
 /**
- * Coded Pookalam on <canvas>, inspired by the provided reference.
- * Uses concentric wedge rings in warm hues and a simple central Kerala scene.
+ * Swirling Pookalam design inspired by traditional Kerala patterns
  */
 export default function PookalamCanvas({
   size = 520,
@@ -31,118 +30,134 @@ export default function PookalamCanvas({
     const cy = size / 2
     const outerR = size * 0.48
 
-    // Palette (UI colors kept simple; drawing uses these solids)
-    const red = "#7F1D1D"
-    const orange = "#EA580C"
-    const yellow = "#F59E0B"
-    const white = "#FFFFFF"
-    const black = "#111827"
+    const deepMaroon = "#800020"
+    const brightRed = "#DC143C"
+    const vibrantOrange = "#FF4500"
+    const goldenYellow = "#FFD700"
+    const pureWhite = "#FFFFFF"
+    const leafGreen = "#228B22"
+    const darkGreen = "#006400"
 
-    // soft drop
+    // Enhanced drop shadow
     ctx.beginPath()
-    ctx.arc(cx, cy, outerR, 0, Math.PI * 2)
-    ctx.fillStyle = "rgba(0,0,0,0.06)"
+    ctx.arc(cx, cy, outerR + 8, 0, Math.PI * 2)
+    ctx.fillStyle = "rgba(0,0,0,0.25)"
     ctx.fill()
 
-    const ringCount = 5
-    const petals = 24
-    const angleStep = (Math.PI * 2) / petals
-    const ringThickness = outerR * 0.11 // even thickness for each ring
-    const gap = ringThickness * 0.06 // tiny gap to avoid anti-aliased overlaps
-
-    const schemes: ReadonlyArray<[string, string]> = [
-      [red, orange],
-      [yellow, white],
-      [orange, yellow],
-      [white, orange],
-      [orange, red],
+    const outerRings = [
+      { color: deepMaroon, thickness: 0.05 },
+      { color: vibrantOrange, thickness: 0.05 },
+      { color: goldenYellow, thickness: 0.05 },
+      { color: pureWhite, thickness: 0.05 },
+      { color: brightRed, thickness: 0.05 },
+      { color: vibrantOrange, thickness: 0.05 },
+      { color: goldenYellow, thickness: 0.05 },
+      { color: pureWhite, thickness: 0.05 },
     ]
 
-    for (let i = 0; i < ringCount; i++) {
-      const rOuter = outerR - i * ringThickness
-      const rInner = rOuter - ringThickness + gap
-      const offset = (i % 2 === 1 ? 0.5 : 0) * angleStep // alternate offset for cleaner tessellation
-      const [cA, cB] = schemes[i % schemes.length]
+    let currentRadius = outerR
 
-      for (let j = 0; j < petals; j++) {
-        const a0 = j * angleStep + offset
-        const a1 = a0 + angleStep
-        ctx.beginPath()
-        ctx.arc(cx, cy, rOuter, a0, a1)
-        ctx.arc(cx, cy, rInner, a1, a0, true)
-        ctx.closePath()
-        ctx.fillStyle = j % 2 === 0 ? cA : cB
-        ctx.fill()
-        ctx.strokeStyle = "rgba(255,255,255,0.08)"
-        ctx.lineWidth = 1
-        ctx.stroke()
-      }
-    }
-
-    // center disc sized from inner-most ring for consistent spacing
-    const innerMost = outerR - ringCount * ringThickness
-    const centerR = innerMost * 0.9
-    const grad = ctx.createRadialGradient(cx, cy, centerR * 0.1, cx, cy, centerR)
-    grad.addColorStop(0, "#FDBA74")
-    grad.addColorStop(1, "#EA580C")
-    ctx.beginPath()
-    ctx.arc(cx, cy, centerR, 0, Math.PI * 2)
-    ctx.fillStyle = grad
-    ctx.fill()
-
-    // land
-    const green = "#2F8F46"
-    ctx.beginPath()
-    ctx.moveTo(cx - centerR * 0.95, cy + centerR * 0.15)
-    ctx.quadraticCurveTo(cx, cy + centerR * 0.55, cx + centerR * 0.95, cy + centerR * 0.15)
-    ctx.lineTo(cx + centerR * 0.95, cy + centerR * 0.5)
-    ctx.lineTo(cx - centerR * 0.95, cy + centerR * 0.5)
-    ctx.closePath()
-    ctx.fillStyle = green
-    ctx.fill()
-
-    // boat silhouette
-    ctx.beginPath()
-    ctx.moveTo(cx - centerR * 0.9, cy + centerR * 0.1)
-    ctx.quadraticCurveTo(cx, cy + centerR * 0.3, cx + centerR * 0.9, cy + centerR * 0.05)
-    ctx.lineTo(cx + centerR * 0.9, cy + centerR * 0.16)
-    ctx.quadraticCurveTo(cx, cy + centerR * 0.36, cx - centerR * 0.9, cy + centerR * 0.2)
-    ctx.closePath()
-    ctx.fillStyle = black
-    ctx.fill()
-
-    // palms
-    const palm = (x: number, h: number) => {
+    // Draw outer concentric rings
+    outerRings.forEach((ring) => {
+      const ringThickness = outerR * ring.thickness
       ctx.beginPath()
-      ctx.moveTo(x, cy - h * 0.1)
-      ctx.quadraticCurveTo(x - h * 0.05, cy - h * 0.4, x, cy - h)
-      ctx.lineWidth = Math.max(1.5, centerR * 0.03)
-      ctx.strokeStyle = black
-      ctx.stroke()
-      for (let j = 0; j < 6; j++) {
-        const a = -Math.PI / 2 + (j - 2.5) * 0.35
-        ctx.beginPath()
-        ctx.moveTo(x, cy - h)
-        ctx.lineTo(x + Math.cos(a) * centerR * 0.35, cy - h + Math.sin(a) * centerR * 0.35)
-        ctx.stroke()
-      }
-    }
-    palm(cx - centerR * 0.25, centerR * 0.8)
-    palm(cx - centerR * 0.05, centerR * 0.65)
+      ctx.arc(cx, cy, currentRadius, 0, Math.PI * 2)
+      ctx.arc(cx, cy, currentRadius - ringThickness, 0, Math.PI * 2, true)
+      ctx.fillStyle = ring.color
+      ctx.fill()
+      currentRadius -= ringThickness
+    })
 
-    // inner border ring
+    const centerRadius = currentRadius * 0.95
+
+    // Background for center swirl
     ctx.beginPath()
-    ctx.arc(cx, cy, centerR * 1.05, 0, Math.PI * 2)
+    ctx.arc(cx, cy, centerRadius, 0, Math.PI * 2)
+    ctx.fillStyle = pureWhite
+    ctx.fill()
+
+    // Create the flowing swirl pattern
+    const numSwirls = 8
+    const swirlColors = [
+      deepMaroon,
+      vibrantOrange,
+      goldenYellow,
+      pureWhite,
+      leafGreen,
+      brightRed,
+      vibrantOrange,
+      goldenYellow,
+    ]
+
+    for (let i = 0; i < numSwirls; i++) {
+      const baseAngle = (i * Math.PI * 2) / numSwirls
+      const color = swirlColors[i % swirlColors.length]
+
+      // Create curved swirl segments that flow from center outward
+      ctx.beginPath()
+      ctx.moveTo(cx, cy)
+
+      const segments = 12
+      for (let j = 0; j <= segments; j++) {
+        const t = j / segments
+        const angle = baseAngle + t * Math.PI * 1.8 // Spiral curve
+        const radius = t * centerRadius * 0.85
+        const x = cx + Math.cos(angle) * radius
+        const y = cy + Math.sin(angle) * radius
+
+        if (j === 0) {
+          ctx.moveTo(x, y)
+        } else {
+          ctx.lineTo(x, y)
+        }
+      }
+
+      // Create the swirl width
+      for (let j = segments; j >= 0; j--) {
+        const t = j / segments
+        const angle = baseAngle + t * Math.PI * 1.8
+        const radius = t * centerRadius * 0.85
+        const offsetAngle = angle + Math.PI / (numSwirls * 2)
+        const offsetRadius = Math.min(radius + centerRadius * 0.08, centerRadius * 0.85)
+        const x = cx + Math.cos(offsetAngle) * offsetRadius
+        const y = cy + Math.sin(offsetAngle) * offsetRadius
+        ctx.lineTo(x, y)
+      }
+
+      ctx.closePath()
+      ctx.fillStyle = color
+      ctx.fill()
+    }
+
+    for (let i = 0; i < numSwirls; i++) {
+      const angle = (i * Math.PI * 2) / numSwirls + Math.PI / (numSwirls * 2)
+
+      ctx.beginPath()
+      ctx.moveTo(cx + Math.cos(angle) * centerRadius * 0.1, cy + Math.sin(angle) * centerRadius * 0.1)
+      ctx.lineTo(cx + Math.cos(angle) * centerRadius * 0.8, cy + Math.sin(angle) * centerRadius * 0.8)
+      ctx.lineWidth = 3
+      ctx.strokeStyle = leafGreen
+      ctx.stroke()
+    }
+
+    // Central decorative dot
+    ctx.beginPath()
+    ctx.arc(cx, cy, centerRadius * 0.08, 0, Math.PI * 2)
+    ctx.fillStyle = deepMaroon
+    ctx.fill()
+
+    ctx.beginPath()
+    ctx.arc(cx, cy, outerR + 2, 0, Math.PI * 2)
     ctx.lineWidth = 4
-    ctx.strokeStyle = white
+    ctx.strokeStyle = deepMaroon
     ctx.stroke()
   }, [size])
 
   return (
     <canvas
       ref={ref}
-      className="rounded-full shadow-md cursor-pointer hover:shadow-lg transition-shadow"
-      aria-label="Pookalam design"
+      className="rounded-full shadow-xl cursor-pointer hover:shadow-2xl transition-all duration-300 hover:scale-105"
+      aria-label="Traditional swirling Pookalam design"
       onClick={onClick}
     />
   )
