@@ -1,13 +1,17 @@
 "use client"
 
 // wish-card generator using image 2, and click-to-play song.
-import { useRef } from "react"
+import { useRef, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Palette } from "lucide-react"
 import PookalamCanvas from "@/components/pookalam-canvas"
 import WishCardGenerator from "@/components/wish-card-generator"
 import AutoYouTube, { type AudioControlRef } from "@/components/auto-youtube"
+import PookalamBuilderPortal from "@/components/pookalam-builder-portal"
 
 export default function Page() {
   const audioRef = useRef<AudioControlRef>(null)
+  const [isBuilderOpen, setIsBuilderOpen] = useState(false)
 
   const handlePookalamClick = () => {
     audioRef.current?.play()
@@ -41,11 +45,29 @@ export default function Page() {
             <p className="mt-2 text-center text-xs text-orange-600 font-medium">Click the pookalam for some noise</p>
           </div>
         </section>
+
+        <section className="mx-auto mt-8">
+          <div className="rounded-2xl bg-white/70 p-6 shadow-lg backdrop-blur text-center">
+            <h2 className="mb-4 text-lg font-medium text-neutral-800">Create Your Own Pookalam</h2>
+            <p className="mb-6 text-sm text-neutral-600">
+              Design your own beautiful Pookalam using traditional Kerala flowers
+            </p>
+            <Button
+              onClick={() => setIsBuilderOpen(true)}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 text-lg font-medium"
+            >
+              <Palette className="mr-2 h-5 w-5" />
+              Start Creating
+            </Button>
+          </div>
+        </section>
       </div>
 
       {/* Floating icon opens the generator; wish card is available via this icon only */}
       <WishCardGenerator />
       <AutoYouTube ref={audioRef} videoId="dUs4mAHzw74" />
+
+      <PookalamBuilderPortal isOpen={isBuilderOpen} onClose={() => setIsBuilderOpen(false)} />
     </main>
   )
 }
